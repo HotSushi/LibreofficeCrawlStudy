@@ -35,8 +35,9 @@ class CrashSpider(scrapy.Spider):
             self.done_with_sign(sign)
 
     def get_unfinished_sign(self):
-        cursor = self.database.cursor()
-        cursor.execute('SELECT sign, url from signature where  crawled_crash_list = false limit 1;')
+        cursor = self.database.cursor()       
+        cursor.execute('select signature.sign,signature.url from signature, bugs where signature.sign=bugs.sign and bugs.id is not null;')
+        #cursor.execute('SELECT sign, url from signature where  crawled_crash_list = false;')
         results = cursor.fetchall()
         return results
 
