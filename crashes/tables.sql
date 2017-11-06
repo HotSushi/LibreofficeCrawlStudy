@@ -18,4 +18,14 @@ CREATE Table Crash (
 	PRIMARY KEY(id)
 );
 
-alter table signature add crawled_crash_list BOOLEAN default false;
+ALTER TABLE Crash
+ADD COLUMN crash_date DATETIME,
+ADD COLUMN os_name VARCHAR(200),
+ADD COLUMN os_version VARCHAR(200),
+ADD COLUMN cpu_info VARCHAR(200),
+ADD COLUMN build VARCHAR(200),
+ADD COLUMN version VARCHAR(200),
+ADD COLUMN reason VARCHAR(200),
+ADD COLUMN opengldriver VARCHAR(200),
+ADD COLUMN opengldevice VARCHAR(200)
+;
