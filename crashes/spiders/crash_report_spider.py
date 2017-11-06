@@ -30,7 +30,7 @@ class CrashSpider(scrapy.Spider):
             SELECT crash.id, crash.url, crash.sign FROM crash 
             WHERE crash.crash_date IS NULL and
             crash.sign in 
-            ( SELECT signature.sign FROM signature, bugs WHERE signature.sign=bugs.sign and bugs.id IS NOT NULL) LIMIT 1000;
+            ( SELECT signature.sign FROM signature, bugs WHERE signature.sign=bugs.sign and bugs.id IS NOT NULL) order by crash.id ASC LIMIT 1000;
             """)
         results = cursor.fetchall()
         return results
