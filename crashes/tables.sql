@@ -29,3 +29,6 @@ ADD COLUMN reason VARCHAR(200),
 ADD COLUMN opengldriver VARCHAR(200),
 ADD COLUMN opengldevice VARCHAR(200)
 ;
+
+ALTER TABLE Signature
+ADD COLUMN last_crawled_crash_url VARCHAR(400);

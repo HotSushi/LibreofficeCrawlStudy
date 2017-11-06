@@ -14,7 +14,8 @@ class CrashSpider(scrapy.Spider):
         self.initDatabase()
         results = self.get_unfinished_sign()
         for result in results:
-            yield scrapy.Request(url=result[1], callback=self.parse, meta={'sign':result[0]})
+            url = result[2] or result[1]
+            yield scrapy.Request(url=url, callback=self.parse, meta={'sign':result[0]})
 
     def parse(self, response):
         sign = response.meta.get('sign')
@@ -30,13 +31,14 @@ class CrashSpider(scrapy.Spider):
                 nextlink= pagination.css('a::attr(href)').extract_first()
         if nextlink:
             nextlink = response.urljoin(nextlink)
+            self.update_last(sign, nextlink)
             yield scrapy.Request(nextlink, callback=self.parse, meta={'sign': sign})
         else:
             self.done_with_sign(sign)
 
     def get_unfinished_sign(self):
         cursor = self.database.cursor()       
-        cursor.execute('select signature.sign,signature.url from signature, bugs where signature.sign=bugs.sign and bugs.id is not null and crawled_crash_list = false order by signature.sign ASC;')
+        cursor.execute('select signature.sign,signature.url, signature.last_crawled_crash_url from signature, bugs where signature.sign=bugs.sign and bugs.id is not null and crawled_crash_list = false order by signature.sign ASC;')
         #cursor.execute('SELECT sign, url from signature where  crawled_crash_list = false;')
         results = cursor.fetchall()
         return results
@@ -44,6 +46,11 @@ class CrashSpider(scrapy.Spider):
     def insert(self, id, sign, link):
         cursor = self.database.cursor()
         cursor.execute("""INSERT IGNORE into crash(id, sign, url) values (%s,%s,%s);""",(id, sign, link))
+
+    def update_last(self, sign, link):        
+        cursor = self.database.cursor()
+        cursor.execute("""UPDATE signature set last_crawled_crash_url = %s where sign = %s;""",[link, sign])
+        self.database.commit()
 
     def done_with_sign(self, sign):
         cursor = self.database.cursor()  

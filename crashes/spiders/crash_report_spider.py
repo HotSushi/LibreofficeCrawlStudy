@@ -8,6 +8,10 @@ class CrashSpider(scrapy.Spider):
     name = "crashreport"
 
     def initDatabase(self):
+        self.ignore_list = {}
+        with open("problem_crashes.temp") as ignore_file:
+            for line in ignore_file:
+                self.ignore_list[line] = 1;
         with open('config.json') as config:    
             data = json.load(config)
             self.database = MySQLdb.connect(host = data['host'], user = data['user'], passwd = data['password'], db = data['db'], port = 3306)
@@ -16,13 +20,18 @@ class CrashSpider(scrapy.Spider):
         self.initDatabase()
         results = self.get_unfinished_buggy_crashreports()
         for result in results:
-            yield scrapy.Request(url=result[1], callback=self.parse, meta={'sign':result[2], 'id': result[0]})
+            if result[1] not in self.ignore_list:
+                yield scrapy.Request(url=result[1], callback=self.parse, meta={'sign':result[2], 'id': result[0]})
 
     def parse(self, response):
-        sign = response.meta.get('sign')
-        id = response.meta.get('id')
-        data = self.get_data(response)
-        self.done_with_crashreport(id, data)
+        try:
+            sign = response.meta.get('sign')
+            id = response.meta.get('id')
+            data = self.get_data(response)
+            self.done_with_crashreport(id, data)
+        except:
+            with open("problem_crashes.temp", "a") as ignore_file:
+                ignore_file.write(response.url+"\n")
 
     def get_unfinished_buggy_crashreports(self):
         cursor = self.database.cursor()       
@@ -30,7 +39,7 @@ class CrashSpider(scrapy.Spider):
             SELECT crash.id, crash.url, crash.sign FROM crash 
             WHERE crash.crash_date IS NULL and
             crash.sign in 
-            ( SELECT signature.sign FROM signature, bugs WHERE signature.sign=bugs.sign and bugs.id IS NOT NULL) order by crash.id ASC LIMIT 1000;
+            ( SELECT signature.sign FROM signature, bugs WHERE signature.sign=bugs.sign and bugs.id IS NOT NULL) order by crash.id ASC LIMIT 2000;
             """)
         results = cursor.fetchall()
         return results
