@@ -58,7 +58,7 @@ class CrashSpider(scrapy.Spider):
             opengldriver = %s,
             opengldevice = %s
             where id = %s;""",
-            [data["crash_date"], data["os_name"], data["os_version"], data["cpu_info"], data["build"], data["version"], data["reason"], data["opengldriver"], data["opengldevice"], id])
+            [data["crash_date"], data["os_name"], data["os_version"], data["cpu_info"], data["build"], data["version"], data["reason"], data.get("opengldriver"), data.get("opengldevice"), id])
         self.database.commit()
 
     def get_data(self, response):
