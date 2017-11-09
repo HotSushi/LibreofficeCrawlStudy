@@ -32,3 +32,16 @@ ADD COLUMN opengldevice VARCHAR(200)
 
 ALTER TABLE Signature
 ADD COLUMN last_crawled_crash_url VARCHAR(400);
+
+ALTER TABLE Bugs
+ADD COLUMN create_time DATETIME,
+ADD COLUMN last_modified DATETIME,
+ADD COLUMN priority VARCHAR(300),
+ADD COLUMN severity VARCHAR(300),
+ADD COLUMN cc_count VARCHAR(30),
+ADD COLUMN comment_count VARCHAR(30),
+ADD COLUMN status VARCHAR(300),
+ADD COLUMN resolution VARCHAR(300),
+ADD COLUMN attachment_count VARCHAR(30),
+ADD COLUMN duplicate_of VARCHAR(300)
+;
