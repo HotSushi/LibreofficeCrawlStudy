@@ -45,3 +45,9 @@ ADD COLUMN resolution VARCHAR(300),
 ADD COLUMN attachment_count VARCHAR(30),
 ADD COLUMN duplicate_of VARCHAR(300)
 ;
+
+
+CREATE INDEX crash_sign_column
+ON crash (sign);
+
+ALTER TABLE Crash ADD CONSTRAINT fk_sign FOREIGN KEY (sign) REFERENCES Signature(sign);
